@@ -24,7 +24,7 @@ module.exports = class Guild {
             if (cache.get('guildId') == undefined) {
                 const guildData = await poolQuery(`SELECT * FROM guildssettings WHERE guildId='${this.id}'`);
                 if (isEmpty(guildData)) {
-                    poolQuery(`INSERT INTO guildssettings (guildId, prefix, defaultPerms) VALUES ('${this.id}', '${config.bot.defaultPrefix}', '${config.bot.defaultGuildPerms}')`).then(() => {
+                    poolQuery(`INSERT INTO guildssettings (guildId, prefix, defaultPerms, settings) VALUES ('${this.id}', '${config.bot.defaultPrefix}', '${config.bot.defaultGuildPerms}', '{}')`).then(() => {
                         this.setProperties(guildData[0]);
                     });
                 } else {

@@ -12,7 +12,6 @@ module.exports = async function(bot, message) {
             if (message.content.indexOf(message.server.prefix) == 0) {
                 message.member.guild = message.server;
                 message.member = await new User(message.member).init();
-                console.log(require('util').inspect(message.member.perms, false, null));
 
                 const commandName = message.content.slice(message.server.prefix.length).split(' ')[0];
                 const command = new Command(commandName);
