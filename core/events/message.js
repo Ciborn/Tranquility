@@ -9,10 +9,10 @@ module.exports = async function(bot, message) {
     if (!message.author.bot) {
         try {
             message.server = await new Guild(message.guild).init();
+            message.member.guild = message.server;
+            message.member = await new User(message.member).init();
+            message.member.updateStatistics(message);
             if (message.content.indexOf(message.server.prefix) == 0) {
-                message.member.guild = message.server;
-                message.member = await new User(message.member).init();
-
                 const commandName = message.content.slice(message.server.prefix.length).split(' ')[0];
                 const command = new Command(commandName);
 

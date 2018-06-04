@@ -1,4 +1,4 @@
-const poolQuery = require('../../functions/databasePoolQuery');
+const poolQuery = require('../../functions/database/poolQuery');
 const isEmpty = require('./../../functions/utils/isEmpty');
 const config = require('./../../../config.json');
 const Cache = require('./../../structures/Cache');
@@ -37,19 +37,21 @@ module.exports = class User {
                             spam: {},
                             others: 0
                         },
-                        channels: {},
+                        bots: {},
                         times: {}
                     });
                     poolQuery(`INSERT INTO users (userId, guildId, guildPerms, statistics, boosts, inventory, lastMessage, settings) VALUES ('${this.user.id}', '${this.guild.id}', ${this.guild.defaultPerms}, '${statisticsModel}', '{}', '{}', '{}', '{}')`).then(() => {
-                        this.setProperties(userData[0]);
+                        this.updateUserCache();
                     });
                 } else {
                     this.setProperties(userData[0]);
                 }
+                cache.set('lastMessages', []);
             } else {
                 const userData = JSON.parse(fs.readFileSync(`cache/${this.guild.id}/${this.user.id}`, {encoding: 'utf8'}));
                 for (let [key, value] of Object.entries(userData)) this[key] = value;
             }
+            this.lastMessages = cache.get('lastMessages');
             resolve(this);
         })
     }
@@ -60,31 +62,45 @@ module.exports = class User {
             this[property] = value;
             cache.set(property, value);
         }
+        this.statistics = JSON.parse(this.statistics);
+        this.lastMessage = JSON.parse(this.lastMessage);
     }
 
     async updateStatistics(message) {
-        const statistics_wordsForOthers = fs.readFileSync('core/data/statistics/wordForOthers.json', {encoding: 'utf8'});
+        const cache = new Cache(this.guild.id, this.user.id);
+        const statistics_wordsForOthers = JSON.parse(fs.readFileSync('core/data/statistics/wordsForOthers.json', {encoding: 'utf8'}));
         const collected = await message.channel.awaitMessages(msg => msg.author.bot, {time: 1000, max: 1});
 
-        for (let element in statistics_wordsForOthers) {
-            if (message.content.indexOf(element) != -1) {
+        var found = false;
+        for (let element of statistics_wordsForOthers) {
+            if (collected.first() != undefined ? message.content.indexOf(element) != -1 || collected.first().content.indexOf(element) != -1 : message.content.indexOf(element) != -1) {
                 this.statistics.types.others++;
+                found = true;
             }
         }
-
+        
+        const currentTime = new Date();
         if (collected.size > 0) {
-            if (this.)
-            this.statistics.types.bots[collected.first().id] == undefined ? this.statistics.types.bots[collected.first().id] = 1 : this.statistics.types.bots[collected.first().id]++;
-        } else {
-            this.statistics.types.chat == undefined ? this.statistics.types.chat = 1 : this.statistics.types.chat++
+            this.statistics.bots[collected.first().author.id] == undefined ? this.statistics.bots[collected.first().author.id] = 1 : this.statistics.bots[collected.first().author.id]++;
+            this.statistics.types.bots[message.channel.id] == undefined ? this.statistics.types.bots[message.channel.id] = 1 : this.statistics.types.bots[message.channel.id]++;
+        } else this.statistics.types.chat[message.channel.id] == undefined ? this.statistics.types.chat[message.channel.id] = 1 : this.statistics.types.chat[message.channel.id]++;
+
+        this.lastMessages.unshift(message.content);
+        if (this.lastMessages.length == 4) delete this.lastMessages[3];
+        this.lastMessage = {
+            id: message.id,
+            content: message.content.indexOf("'") != -1 ? "no u" : message.content,
+            createdTimestamp: message.createdTimestamp
         }
 
-        if (collected.size > 0)  
-        if (collected.size == 0) 
+        const dateFormat = `${currentTime.getUTCFullYear()}-${currentTime.getUTCMonth()}-${currentTime.getUTCDay()} ${currentTime.getUTCHours()}:${currentTime.getUTCMinutes()}`;
+        this.statistics.times[dateFormat] = this.statistics.times[dateFormat] != undefined ? this.statistics.times[dateFormat]++ : this.statistics.times[dateFormat] = 1;
+        this.statistics.total++;
 
-        poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}' WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
-            const cache = new Cache(this.guild.id, this.user.id);
+        poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}', lastMessage='${JSON.stringify(this.lastMessage)}' WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
             cache.set('statistics', this.statistics);
+            cache.set('lastMessage', this.lastMessage);
+            cache.set('lastMessages', this.lastMessages);
         })
     }
 }

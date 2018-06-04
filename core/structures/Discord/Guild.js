@@ -1,4 +1,4 @@
-const poolQuery = require('../../functions/databasePoolQuery');
+const poolQuery = require('../../functions/database/poolQuery');
 const isEmpty = require('./../../functions/utils/isEmpty');
 const config = require('./../../../config.json');
 const Cache = require('./../../structures/Cache');

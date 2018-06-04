@@ -1,9 +1,9 @@
 exports.run = function(bot, message, args) {
-    const poolQuery = require('./../functions/databasePoolQuery');
+    const poolQuery = require('./../functions/database/poolQuery');
     const Discord = require('discord.js');
     const util = require('util');
     try {
-        poolQuery(args.args.join(' ')).then(result => {
+        poolQuery(args.join(' ')).then(result => {
             message.channel.send(util.inspect(result, false, null), {code:"xl"}).catch(err => {
                 const embed = new Discord.RichEmbed()
                     .setTitle(`Message Sending Error`)

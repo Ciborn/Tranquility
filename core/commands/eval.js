@@ -1,6 +1,6 @@
 exports.run = function(bot, message, args) {
     try {
-        const code = args.args.join(' ');
+        const code = args.join(' ');
         let evaled = eval(code);
         
         if (typeof evaled !== "string") {
