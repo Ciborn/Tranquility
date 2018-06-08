@@ -7,6 +7,8 @@ const fs = require('fs');
 module.exports = class User {
     constructor(member) {
         for (let [key, value] of Object.entries(member)) this[key] = value;
+        this.roles = member.roles;
+        this.highestRole = member.highestRole;
     }
 
     async init() {
@@ -32,9 +34,12 @@ module.exports = class User {
                     const statisticsModel = JSON.stringify({
                         total: 0,
                         types: {
-                            chat: {},
-                            bots: {},
-                            spam: {},
+                            chat: {
+                                total: 0
+                            },
+                            bots: {
+                                total: 0
+                            },
                             others: 0
                         },
                         bots: {},
@@ -50,6 +55,7 @@ module.exports = class User {
             } else {
                 const userData = JSON.parse(fs.readFileSync(`cache/${this.guild.id}/${this.user.id}`, {encoding: 'utf8'}));
                 for (let [key, value] of Object.entries(userData)) this[key] = value;
+                this.statistics = JSON.parse(this.statistics);
             }
             this.lastMessages = cache.get('lastMessages');
             resolve(this);
@@ -83,7 +89,22 @@ module.exports = class User {
         if (collected.size > 0) {
             this.statistics.bots[collected.first().author.id] == undefined ? this.statistics.bots[collected.first().author.id] = 1 : this.statistics.bots[collected.first().author.id]++;
             this.statistics.types.bots[message.channel.id] == undefined ? this.statistics.types.bots[message.channel.id] = 1 : this.statistics.types.bots[message.channel.id]++;
-        } else this.statistics.types.chat[message.channel.id] == undefined ? this.statistics.types.chat[message.channel.id] = 1 : this.statistics.types.chat[message.channel.id]++;
+            this.statistics.types.bots.total++;
+        } else { 
+            this.statistics.types.chat[message.channel.id] == undefined ? this.statistics.types.chat[message.channel.id] = 1 : this.statistics.types.chat[message.channel.id]++;
+            this.statistics.types.chat.total++;
+        }
+        
+        var xpReward = 0;
+        const timeDifference = new Date().getTime() - new Date(this.updatedTimestamp).getTime();
+        if (timeDifference <= 4000) xpReward = 0;
+        else if (timeDifference <= 10000) xpReward = 1;
+        else if (timeDifference <= 15000) xpReward = 2;
+        else if (timeDifference <= 20000) xpReward = 3;
+        else if (timeDifference <= 30000) xpReward = 5;
+        else if (timeDifference <= 45000) xpReward = 8;
+        else if (timeDifference <= 60000) xpReward = 13;
+        this.xp = this.xp + xpReward;
 
         this.lastMessages.unshift(message.content);
         if (this.lastMessages.length == 4) delete this.lastMessages[3];
@@ -97,10 +118,12 @@ module.exports = class User {
         this.statistics.times[dateFormat] = this.statistics.times[dateFormat] != undefined ? this.statistics.times[dateFormat]++ : this.statistics.times[dateFormat] = 1;
         this.statistics.total++;
 
-        poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}', lastMessage='${JSON.stringify(this.lastMessage)}' WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
-            cache.set('statistics', this.statistics);
+        poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}', lastMessage='${JSON.stringify(this.lastMessage)}', xp=${this.xp} WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
+            cache.set('xp', this.xp);
+            cache.set('statistics', JSON.stringify(this.statistics));
             cache.set('lastMessage', this.lastMessage);
             cache.set('lastMessages', this.lastMessages);
-        })
+            cache.set('updatedTimestamp', new Date());
+        }).catch(() => {});
     }
 }

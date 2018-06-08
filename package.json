@@ -25,6 +25,7 @@
   "homepage": "https://github.com/Ciborn/Tranquility#readme",
   "dependencies": {
     "discord.js": "^11.3.2",
+    "html-convert": "^2.1.7",
     "mysql": "^2.15.0",
     "request": "^2.87.0",
     "rimraf": "^2.6.2"
