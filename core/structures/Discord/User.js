@@ -57,7 +57,7 @@ module.exports = class User {
                 for (let [key, value] of Object.entries(userData)) this[key] = value;
                 this.statistics = JSON.parse(this.statistics);
             }
-            this.lastMessages = cache.get('lastMessages');
+            this.lastMessages = cache.get('lastMessages') || [];
             resolve(this);
         })
     }
@@ -110,17 +110,23 @@ module.exports = class User {
         if (this.lastMessages.length == 4) delete this.lastMessages[3];
         this.lastMessage = {
             id: message.id,
-            content: message.content.indexOf("'") != -1 ? "no u" : message.content,
+            channel: message.channel.id,
             createdTimestamp: message.createdTimestamp
         }
 
+        this.activityPoints = this.activityPoints * (1 - 0.0000000007 * timeDifference);
+        this.ether += timeDifference / 10000;
+
         const dateFormat = `${currentTime.getUTCFullYear()}-${currentTime.getUTCMonth()}-${currentTime.getUTCDay()} ${currentTime.getUTCHours()}:${currentTime.getUTCMinutes()}`;
+        if (this.statistics.times[dateFormat] == undefined) this.activityPoints++;
         this.statistics.times[dateFormat] = this.statistics.times[dateFormat] != undefined ? this.statistics.times[dateFormat]++ : this.statistics.times[dateFormat] = 1;
         this.statistics.total++;
 
-        poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}', lastMessage='${JSON.stringify(this.lastMessage)}', xp=${this.xp} WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
+        poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}', lastMessage='${JSON.stringify(this.lastMessage)}', xp=${this.xp}, ether=${this.ether}, activityPoints=${this.activityPoints} WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
             cache.set('xp', this.xp);
+            cache.set('ether', this.ether);
             cache.set('statistics', JSON.stringify(this.statistics));
+            cache.set('activityPoints', this.activityPoints);
             cache.set('lastMessage', this.lastMessage);
             cache.set('lastMessages', this.lastMessages);
             cache.set('updatedTimestamp', new Date());

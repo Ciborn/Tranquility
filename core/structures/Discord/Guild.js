@@ -1,4 +1,5 @@
 const poolQuery = require('../../functions/database/poolQuery');
+const Leaderboard = require('./../Tranquility/Leaderboard');
 const isEmpty = require('./../../functions/utils/isEmpty');
 const config = require('./../../../config.json');
 const Cache = require('./../../structures/Cache');
@@ -6,11 +7,13 @@ const fs = require('fs');
 module.exports = class Guild {
     constructor(guild) {
         for (let [key, value] of Object.entries(guild)) this[key] = value;
+        this.id = guild.id;
     }
 
     async init() {
         return new Promise((resolve, reject) => {
-            this.updateUserCache().then(() => {
+            this.updateUserCache().then(async () => {
+                this.lead = await new Leaderboard(this.id).init();
                 resolve(this);
             }).catch(err => {
                 reject(err);
