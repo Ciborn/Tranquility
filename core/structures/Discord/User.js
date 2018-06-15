@@ -56,6 +56,7 @@ module.exports = class User {
                 const userData = JSON.parse(fs.readFileSync(`cache/${this.guild.id}/${this.user.id}`, {encoding: 'utf8'}));
                 for (let [key, value] of Object.entries(userData)) this[key] = value;
                 this.statistics = JSON.parse(this.statistics);
+                this.lastMessage = JSON.parse(this.lastMessage);
             }
             this.lastMessages = cache.get('lastMessages') || [];
             resolve(this);
@@ -72,64 +73,68 @@ module.exports = class User {
         this.lastMessage = JSON.parse(this.lastMessage);
     }
 
-    async updateStatistics(message) {
-        const cache = new Cache(this.guild.id, this.user.id);
-        const statistics_wordsForOthers = JSON.parse(fs.readFileSync('core/data/statistics/wordsForOthers.json', {encoding: 'utf8'}));
-        const collected = await message.channel.awaitMessages(msg => msg.author.bot, {time: 1000, max: 1});
-
-        var found = false;
-        for (let element of statistics_wordsForOthers) {
-            if (collected.first() != undefined ? message.content.indexOf(element) != -1 || collected.first().content.indexOf(element) != -1 : message.content.indexOf(element) != -1) {
-                this.statistics.types.others++;
-                found = true;
+    updateStatistics(message) {
+        return new Promise(async (resolve, reject) => {
+            const cache = new Cache(this.guild.id, this.user.id);
+            const statistics_wordsForOthers = JSON.parse(fs.readFileSync('core/data/statistics/wordsForOthers.json', {encoding: 'utf8'}));
+            const collected = await message.channel.awaitMessages(msg => msg.author.bot, {time: 1000, max: 1});
+    
+            var found = false;
+            for (let element of statistics_wordsForOthers) {
+                if (collected.first() != undefined ? message.content.indexOf(element) != -1 || collected.first().content.indexOf(element) != -1 : message.content.indexOf(element) != -1) {
+                    this.statistics.types.others++;
+                    found = true;
+                }
             }
-        }
-        
-        const currentTime = new Date();
-        if (collected.size > 0) {
-            this.statistics.bots[collected.first().author.id] == undefined ? this.statistics.bots[collected.first().author.id] = 1 : this.statistics.bots[collected.first().author.id]++;
-            this.statistics.types.bots[message.channel.id] == undefined ? this.statistics.types.bots[message.channel.id] = 1 : this.statistics.types.bots[message.channel.id]++;
-            this.statistics.types.bots.total++;
-        } else { 
-            this.statistics.types.chat[message.channel.id] == undefined ? this.statistics.types.chat[message.channel.id] = 1 : this.statistics.types.chat[message.channel.id]++;
-            this.statistics.types.chat.total++;
-        }
-        
-        var xpReward = 0;
-        const timeDifference = new Date().getTime() - new Date(this.updatedTimestamp).getTime();
-        if (timeDifference <= 4000) xpReward = 0;
-        else if (timeDifference <= 10000) xpReward = 1;
-        else if (timeDifference <= 15000) xpReward = 2;
-        else if (timeDifference <= 20000) xpReward = 3;
-        else if (timeDifference <= 30000) xpReward = 5;
-        else if (timeDifference <= 45000) xpReward = 8;
-        else if (timeDifference <= 60000) xpReward = 13;
-        this.xp = this.xp + xpReward;
-
-        this.lastMessages.unshift(message.content);
-        if (this.lastMessages.length == 4) delete this.lastMessages[3];
-        this.lastMessage = {
-            id: message.id,
-            channel: message.channel.id,
-            createdTimestamp: message.createdTimestamp
-        }
-
-        this.activityPoints = this.activityPoints * (1 - 0.0000000007 * timeDifference);
-        this.ether += timeDifference / 10000;
-
-        const dateFormat = `${currentTime.getUTCFullYear()}-${currentTime.getUTCMonth()}-${currentTime.getUTCDay()} ${currentTime.getUTCHours()}:${currentTime.getUTCMinutes()}`;
-        if (this.statistics.times[dateFormat] == undefined) this.activityPoints++;
-        this.statistics.times[dateFormat] = this.statistics.times[dateFormat] != undefined ? this.statistics.times[dateFormat]++ : this.statistics.times[dateFormat] = 1;
-        this.statistics.total++;
-
-        poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}', lastMessage='${JSON.stringify(this.lastMessage)}', xp=${this.xp}, ether=${this.ether}, activityPoints=${this.activityPoints} WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
-            cache.set('xp', this.xp);
-            cache.set('ether', this.ether);
-            cache.set('statistics', JSON.stringify(this.statistics));
-            cache.set('activityPoints', this.activityPoints);
-            cache.set('lastMessage', this.lastMessage);
-            cache.set('lastMessages', this.lastMessages);
-            cache.set('updatedTimestamp', new Date());
-        }).catch(() => {});
+            
+            const currentTime = new Date();
+            if (collected.size > 0) {
+                this.statistics.bots[collected.first().author.id] == undefined ? this.statistics.bots[collected.first().author.id] = 1 : this.statistics.bots[collected.first().author.id]++;
+                this.statistics.types.bots[message.channel.id] == undefined ? this.statistics.types.bots[message.channel.id] = 1 : this.statistics.types.bots[message.channel.id]++;
+                this.statistics.types.bots.total++;
+            } else { 
+                this.statistics.types.chat[message.channel.id] == undefined ? this.statistics.types.chat[message.channel.id] = 1 : this.statistics.types.chat[message.channel.id]++;
+                this.statistics.types.chat.total++;
+            }
+            
+            var xpReward = 0;
+            const timeDifference = new Date().getTime() - new Date(this.updatedTimestamp).getTime();
+            if (timeDifference <= 4000) xpReward = 0;
+            else if (timeDifference <= 10000) xpReward = 1;
+            else if (timeDifference <= 15000) xpReward = 2;
+            else if (timeDifference <= 20000) xpReward = 3;
+            else if (timeDifference <= 30000) xpReward = 5;
+            else if (timeDifference <= 45000) xpReward = 8;
+            else if (timeDifference <= 60000) xpReward = 13;
+            this.xp = this.xp + xpReward;
+    
+            this.lastMessages.unshift(message.content);
+            if (this.lastMessages.length == 4) delete this.lastMessages[3];
+            this.lastMessage = {
+                id: message.id,
+                channel: message.channel.id,
+                createdTimestamp: message.createdTimestamp
+            }
+    
+            this.activityPoints *= 1 - (0.0000000015 * timeDifference);
+            this.ether += timeDifference / 10000;
+    
+            const dateFormat = `${currentTime.getUTCFullYear()}-${currentTime.getUTCMonth()}-${currentTime.getUTCDay()} ${currentTime.getUTCHours()}:${currentTime.getUTCMinutes()}`;
+            if (this.statistics.times[dateFormat] == undefined) this.activityPoints++;
+            this.statistics.times[dateFormat] = this.statistics.times[dateFormat] != undefined ? this.statistics.times[dateFormat]++ : this.statistics.times[dateFormat] = 1;
+            this.statistics.total++;
+    
+            poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}', lastMessage='${JSON.stringify(this.lastMessage)}', xp=${this.xp}, ether=${this.ether}, activityPoints=${this.activityPoints} WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
+                cache.set('xp', this.xp);
+                cache.set('ether', this.ether);
+                cache.set('statistics', JSON.stringify(this.statistics));
+                cache.set('activityPoints', this.activityPoints);
+                cache.set('lastMessage', JSON.stringify(this.lastMessage));
+                cache.set('lastMessages', this.lastMessages);
+                cache.set('updatedTimestamp', new Date());
+                this.updatedTimestamp = new Date();
+            }).catch(() => {});
+            resolve(this);
+        })
     }
 }

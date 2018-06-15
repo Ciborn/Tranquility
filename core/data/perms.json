@@ -1,9 +1,10 @@
 {
-    "ADMINISTRATOR": 128,
-    "USE_EVAL": 64,
-    "RESTART_BOT": 32,
-    "RELOAD_MODULES": 16,
-    "USE_QUERY": 8,
+    "ADMINISTRATOR": 256,
+    "USE_EVAL": 128,
+    "RESTART_BOT": 64,
+    "RELOAD_MODULES": 32,
+    "USE_QUERY": 16,
+    "SHOW_ADMIN_COMMANDS": 8,
     "RECEIVE_STUFF": 4,
     "CREATE_PROFILE": 2,
     "USE_BOT": 1

@@ -1,9 +1,9 @@
+const Perms = require('./../structures/Tranquility/Perms');
 const isEmpty = require('./../functions/utils/isEmpty');
-const BotError = require('./../structures/BotError');
 const Guild = require('./../structures/Discord/Guild');
+const BotError = require('./../structures/BotError');
 const User = require('./../structures/Discord/User');
 const Command = require('./../structures/Command');
-const Perms = require('./../structures/Tranquility/Perms');
 const Discord = require('discord.js');
 module.exports = async function(bot, message) {
     if (!message.author.bot) {
@@ -11,7 +11,7 @@ module.exports = async function(bot, message) {
             message.server = await new Guild(message.guild).init();
             message.member.guild = message.server;
             message.member = await new User(message.member).init();
-            message.member.updateStatistics(message);
+            message.member = await message.member.updateStatistics(message);
             if (message.content.indexOf(message.server.prefix) == 0) {
                 const commandName = message.content.slice(message.server.prefix.length).split(' ')[0];
                 const command = new Command(commandName);

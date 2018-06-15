@@ -21,6 +21,6 @@ exports.infos = {
         discord: null
     },
     enabled: null,
-    category: "Game",
+    category: "Admin",
     description: "Evaluates node.js code"
 }
