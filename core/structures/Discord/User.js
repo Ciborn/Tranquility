@@ -133,8 +133,8 @@ module.exports = class User {
                 cache.set('lastMessages', this.lastMessages);
                 cache.set('updatedTimestamp', new Date());
                 this.updatedTimestamp = new Date();
+                resolve(this);
             }).catch(() => {});
-            resolve(this);
         })
     }
 }
