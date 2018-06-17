@@ -23,14 +23,7 @@ module.exports = async function(bot, message) {
                         const execute = function(path) {
                             try {
                                 require(`./../commands/${command.command}`).run(bot, message, args);
-                            } catch (err) {
-                                const error = new BotError(err);
-                                const embed = new Discord.RichEmbed()
-                                    .setTitle('An internal error occured')
-                                    .setDescription(`Please report the following error to the development team of **${bot.user.username}**.\n\`\`\`xl\n${error.string}\`\`\``)
-                                    .setColor('RED');
-                                message.channel.send({embed});
-                            }
+                            } catch (err) {};
                         }
     
                         if (message.member.perms.bot.has('ADMINISTRATOR')) {
