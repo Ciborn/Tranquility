@@ -117,7 +117,7 @@ module.exports = class User {
             }
     
             this.activityPoints *= 1 - (0.0000000015 * timeDifference);
-            this.ether += timeDifference / 10000;
+            this.ether += timeDifference / 1000000 * this.activityPoints;
     
             const dateFormat = `${currentTime.getUTCFullYear()}-${currentTime.getUTCMonth()}-${currentTime.getUTCDay()} ${currentTime.getUTCHours()}:${currentTime.getUTCMinutes()}`;
             if (this.statistics.times[dateFormat] == undefined) this.activityPoints++;
