@@ -1,13 +1,14 @@
-const Discord = require('discord.js');
-const bot = new Discord.Client();
+const Bot = require('./core/structures/Bot');
 const config = require('./config.json');
+const bot = new Bot();
 bot.login(config.bot.token);
 
 bot.on('ready', () => {
     require('rimraf')('./cache', (err) => {
-        err != null ? console.error(err) : null;
+        if (err != null) console.error(err);
     });
     require('./core/events/ready')(bot);
+    bot.cache = {};
 });
 
 bot.on('message', message => {
