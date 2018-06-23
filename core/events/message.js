@@ -1,33 +1,38 @@
 const Perms = require('./../structures/Tranquility/Perms');
 const isEmpty = require('./../functions/utils/isEmpty');
-const Guild = require('./../structures/Discord/Guild');
 const BotError = require('./../structures/BotError');
-const User = require('./../structures/Discord/User');
 const Command = require('./../structures/Command');
 const Discord = require('discord.js');
 module.exports = async function(bot, message) {
     if (!message.author.bot) {
         try {
-            message.server = await new Guild(message.guild).init();
-            message.member.guild = message.server;
-            message.member = await new User(message.member).init();
-            message.member = await message.member.updateStatistics(message);
-            if (message.content.indexOf(message.server.prefix) == 0) {
-                const commandName = message.content.slice(message.server.prefix.length).split(' ')[0];
+            message.member.guild = await bot.fetchGuild(message.guild.id);
+            message.member = await message.member.guild.fetchMember(message.member.id);
+            await message.member.updateStatistics(message);
+            if (message.content.indexOf(message.member.guild.prefix) == 0) {
+                const commandName = message.content.slice(message.member.guild.prefix.length).split(' ')[0];
                 const command = new Command(commandName);
 
                 if (command.name != undefined) {
-                    const args = message.content.slice(message.server.prefix.length).split(' '); args.shift();
+                    const args = message.content.slice(message.member.guild.prefix.length).split(' '); args.shift();
 
                     if (command.perms.bot != undefined && command.perms.guild != undefined) {
-                        const execute = function(path) {
+                        const execute = function() {
                             try {
-                                require(`./../commands/${command.command}`).run(bot, message, args);
+                                if (command.enabled == null) {
+                                    require(`./../commands/${command.command}`).run(bot, message, args);
+                                } else {
+                                    const embed = new Discord.RichEmbed()
+                                        .setTitle('Command Disabled')
+                                        .setDescription(`This command has been disabled. Reason : \n${command.enabled}`)
+                                        .setColor('ORANGE');
+                                    message.channel.send({embed});
+                                }
                             } catch (err) {};
                         }
     
                         if (message.member.perms.bot.has('ADMINISTRATOR')) {
-                            execute(command.command);
+                            execute();
                         } else {
                             var isAllowed = [false, false, false];
                             var missingPerms = [[], [], []];
@@ -51,7 +56,7 @@ module.exports = async function(bot, message) {
                             }
     
                             if (isAllowed[0] && isAllowed[1] && isAllowed[2]) {
-                                execute(command.command);
+                                execute();
                             } else {
                                 const stringMissingPerms = `${!isEmpty(missingPerms[0]) ? `**${bot.user.username} Permissions : **` + missingPerms[0].join(' ') + '\n' : ''}${!isEmpty(missingPerms[1]) ? `**Guild Permissions : **` + missingPerms[2].join(' ') + '\n' : ''}${!isEmpty(missingPerms[2]) ? '**Discord Permissions : **' + missingPerms[2].join(' ') : ''}`;
                                 const embed = new Discord.RichEmbed()
