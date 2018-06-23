@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
+const numeral = require('numeral');
 exports.run = function(bot, message, args) {
-    const lead = JSON.parse(require('fs').readFileSync(`cache/${message.guild.id}/lead.json`, {encoding: 'utf8'}));
     const levelData = require('./../functions/activity/computeLevel')(message.member.xp);
-    const progression = `**Level ${levelData[0]}**${levelData[0] == 0 ? '' : ` - ${message.member.xp} XP / ${levelData[3]} XP \`(${Math.round(10 * (100 - (levelData[2] * 100 / levelData[1]))) / 10}%)\``}`;
+    const progression = `**Level ${levelData[0]}**${levelData[0] == 0 ? '' : ` - ${numeral(message.member.xp).format('0,0')} XP / ${numeral(levelData[3]).format('0,0')} XP \`(${Math.round(10 * (100 - (levelData[2] * 100 / levelData[1]))) / 10}%)\``}`;
 
     const determineRank = function(index, total) {
         var rank = '';
@@ -19,15 +19,16 @@ exports.run = function(bot, message, args) {
         return rank;
     }
 
+    const lead = message.member.guild.leaderboard;
     const rankingInfos = [lead.xp[message.author.id].rank, Object.keys(lead.xp).length]; rankingInfos.push(determineRank(rankingInfos[0], rankingInfos[1]));
     const embed = new Discord.RichEmbed()
         .setAuthor(message.author.username, message.author.avatarURL)
         .setTitle(`User Activity Profile`)
         .addField(`Ranking`, `\`[${rankingInfos[2]}]\` **#${rankingInfos[0]}** / ${rankingInfos[1]}`, true)
-        .addField(`Ether`, `${Math.floor(message.member.ether)}`, true)
+        .addField(`Ether`, `${numeral(Math.floor(message.member.ether)).format('0,0')}`, true)
         .addField(`Tokens`, `${message.member.token} Tokens`, true)
         .addField(`Progression`, progression, true)
-        .addField(`Activity Points`, `**${Math.round(100 * message.member.activityPoints) / 100} APs**`, true)
+        .addField(`Activity Points`, `**${numeral(message.member.activityPoints).format('0,0.00')} APs**`, true)
         .setColor(message.member.highestRole.color)
         .setFooter(message.guild.name, message.guild.iconURL);
     message.channel.send({embed});
