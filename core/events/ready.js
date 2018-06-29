@@ -1,13 +1,20 @@
 const config = require('./../../config.json');
+const fs = require('fs');
 module.exports = function(bot) {
-    console.log(` - Started ${bot.user.username} with the ID ${bot.user.id}`)
+    require('rimraf')('./cache', (err) => {
+        if (err != null) return console.error(err);
+        fs.mkdirSync('./cache');
+        fs.mkdirSync('./cache/files/');
+        fs.mkdirSync('./cache/errors/');
+    });
+    console.log(` - Started ${bot.user.username} with the ID ${bot.user.id}`);
     var guildsSize = bot.guilds.size;
     var gameNames = [
-        new Object({type: 3, name: `Tranquility Playing DRPG`}),
-        new Object({type: 0, name: `Use %#info`}),
-        new Object({type: 0, name: `Hello there!`}),
-        new Object({type: 0, name: `with ${bot.guilds.find('id', '379115766127001600').members.size} members`}),
-        new Object({type: 0, name: `on version ${config.bot.version}`})
+        {type: 0, name: `Use %#info`},
+        {type: 0, name: `Hello there!`},
+        {type: 0, name: `with ${bot.users.size} members`},
+        {type: 0, name: `with ${bot.guilds.size} servers`},
+        {type: 0, name: `on version ${config.bot.version}`}
     ];
 
     const changeGame = function() {
