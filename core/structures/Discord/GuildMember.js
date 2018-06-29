@@ -4,7 +4,6 @@ module.exports = function(BaseGuildMember) {
     return class GuildMember extends BaseGuildMember {
         constructor(client, data, guild) {
             super(client, data, guild);
-            console.log(`GuildMember [ID: ${this.id}] [GuildID: ${this.guild.id}] Initiated`);
         }
 
         fetch(guild) {

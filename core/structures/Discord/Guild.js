@@ -3,7 +3,6 @@ module.exports = function(BaseGuild) {
     return class Guild extends BaseGuild {
         constructor(client, data) {
             super(client, data);
-            console.log(`Guild [ID: ${this.id}] Initiated`);
             this.client.dbPool.GuildSettings.findOne({ where: { guildId: this.id } }).then(guildData => {
                 if (guildData == null) {
                     this.client.dbPool.GuildSettings.create({
