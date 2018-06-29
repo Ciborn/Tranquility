@@ -12,7 +12,7 @@ module.exports = class DatabasePool extends Sequelize {
             }
         });
     
-        this.GuildSettings = this.define('guildsSettings', {
+        this.GuildSettings = this.define('guildssettings', {
             guildId: { type: Sequelize.TEXT('tiny'), primaryKey: true },
             prefix: Sequelize.TEXT('tiny'),
             settings: Sequelize.TEXT
