@@ -5,13 +5,11 @@ exports.run = function(bot, message, args) {
     try {
         poolQuery(args.join(' ')).then(result => {
             message.channel.send(util.inspect(result, false, null), {code:"xl"}).catch(err => {
-                const embed = new Discord.RichEmbed()
-                    .setTitle(`Message Sending Error`)
-                    .addField(`Code`, err.code, true)
-                    .addField(`Path`, err.path, true)
-                    .setColor('RED');
-                message.channel.send({embed});
-            })
+                require('fs').writeFileSync(`./cache/files/${message.id}.txt`, require('util').inspect(result, false, null), {encoding: 'utf8'});
+                message.channel.send(`The result was too long to be sent on Discord. Everything is in the attachment.`, {
+                    files: [`./cache/files/${message.id}.txt`]
+                });
+            });
         }).catch(err => {
             message.channel.send(`An error occured.\n\`\`\`xl\n${err}\n\`\`\``);
         })

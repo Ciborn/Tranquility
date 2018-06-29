@@ -7,7 +7,12 @@ exports.run = function(bot, message, args) {
             evaled = require("util").inspect(evaled);
         }
         
-        message.channel.send(evaled, {code:"xl"});
+        message.channel.send(evaled, {code:"xl"}).catch(err => {
+            require('fs').writeFileSync(`./cache/files/${message.id}.txt`, evaled);
+            message.channel.send(`The result was too long to be sent on Discord. Everything is in the attachment.`, {
+                files: [`./cache/files/${message.id}.txt`]
+            });
+        });
     } catch (err) {
         message.channel.send(`An error occured.\n\`\`\`xl\n${require('util').inspect(err, false, null)}\n\`\`\``);
     }

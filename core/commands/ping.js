@@ -1,6 +1,6 @@
 exports.run = function(bot, message) {
-    const Discord = require('discord.js');
-    const embed = new Discord.RichEmbed()
+    const { MessageEmbed } = require('discord.js');
+    const embed = new MessageEmbed()
         .addField('WebSocket Heartbeat', `${Math.floor(bot.ping)} ms`, true)
         .addField('Host Ping', `Computing...`, true)
         .setColor('BLUE');
@@ -16,14 +16,14 @@ exports.run = function(bot, message) {
             color = 'ORANGE';
         }
 
-        const embed = new Discord.RichEmbed()
+        const embed = new MessageEmbed()
             .addField('WebSocket Heartbeat', `${Math.floor(bot.ping)} ms`, true)
             .addField('Host Ping', `${ping} ms`, true)
             .setColor(color);
         message.channel.send({embed});
         newMessage.delete();
     }).catch(function(error) {
-        const embed = new Discord.RichEmbed()
+        const embed = new MessageEmbed()
             .setTitle('An error occured.')
             .setDescription(`Please report this error to the development team of **${bot.user.username}**.\n\`\`\`${error}\`\`\``)
             .setColor('RED');

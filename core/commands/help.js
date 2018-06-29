@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const fs = require('fs');
 exports.run = function(bot, message, args) {
     if (args.length == 0) {
@@ -12,7 +12,7 @@ exports.run = function(bot, message, args) {
                 }
             }
 
-            var embed = new Discord.RichEmbed()
+            var embed = new MessageEmbed()
                 .setAuthor(message.author.username, message.author.avatarURL)
                 .setTitle(`${bot.user.username} Help Pages`)
                 .setColor(`BLUE`);

@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const numeral = require('numeral');
 exports.run = function(bot, message, args) {
     const levelData = require('./../functions/activity/computeLevel')(message.member.xp);
@@ -21,7 +21,7 @@ exports.run = function(bot, message, args) {
 
     const lead = message.member.guild.leaderboard;
     const rankingInfos = [lead.xp[message.author.id].rank, Object.keys(lead.xp).length]; rankingInfos.push(determineRank(rankingInfos[0], rankingInfos[1]));
-    const embed = new Discord.RichEmbed()
+    const embed = new MessageEmbed()
         .setAuthor(message.author.username, message.author.avatarURL)
         .setTitle(`User Activity Profile`)
         .addField(`Ranking`, `\`[${rankingInfos[2]}]\` **#${rankingInfos[0]}** / ${rankingInfos[1]}`, true)

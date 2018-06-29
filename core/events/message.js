@@ -2,12 +2,10 @@ const Perms = require('./../structures/Tranquility/Perms');
 const isEmpty = require('./../functions/utils/isEmpty');
 const BotError = require('./../structures/BotError');
 const Command = require('./../structures/Command');
-const Discord = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 module.exports = async function(bot, message) {
     if (!message.author.bot) {
         try {
-            message.member.guild = await bot.fetchGuild(message.guild.id);
-            message.member = await message.member.guild.fetchMember(message.member.id);
             await message.member.updateStatistics(message);
             if (message.content.indexOf(message.member.guild.prefix) == 0) {
                 const commandName = message.content.slice(message.member.guild.prefix.length).split(' ')[0];
@@ -22,7 +20,7 @@ module.exports = async function(bot, message) {
                                 if (command.enabled == null) {
                                     require(`./../commands/${command.command}`).run(bot, message, args);
                                 } else {
-                                    const embed = new Discord.RichEmbed()
+                                    const embed = new MessageEmbed()
                                         .setTitle('Command Disabled')
                                         .setDescription(`This command has been disabled. Reason : \n${command.enabled}`)
                                         .setColor('ORANGE');
@@ -59,7 +57,7 @@ module.exports = async function(bot, message) {
                                 execute();
                             } else {
                                 const stringMissingPerms = `${!isEmpty(missingPerms[0]) ? `**${bot.user.username} Permissions : **` + missingPerms[0].join(' ') + '\n' : ''}${!isEmpty(missingPerms[1]) ? `**Guild Permissions : **` + missingPerms[2].join(' ') + '\n' : ''}${!isEmpty(missingPerms[2]) ? '**Discord Permissions : **' + missingPerms[2].join(' ') : ''}`;
-                                const embed = new Discord.RichEmbed()
+                                const embed = new MessageEmbed()
                                     .setAuthor(message.author.username, message.author.avatarURL)
                                     .setTitle('Missing Permissions')
                                     .setDescription(`This command needs you to have permissions which you do not have, including the following : \n${stringMissingPerms}`)
@@ -71,12 +69,13 @@ module.exports = async function(bot, message) {
                 }
             }
         } catch(err) {
-            const error = new BotError(err);
-            const embed = new Discord.RichEmbed()
-                .setTitle('An internal error occured')
-                .setDescription(`Please report the following error to the development team of **${bot.user.username}**.\n\`\`\`xl\n${error.string}\`\`\``)
+            const embed = new MessageEmbed()
+                .setTitle('An Internal Error Occured')
+                .setDescription(`This error has been saved. You can alert the development team of **Tranquility** of it to help them to solve the issue.`)
+                .setFooter(`Message ID : ${message.id}`)
                 .setColor('RED');
             message.channel.send({embed});
+            require('fs').writeFileSync(`./cache/errors/${message.id}.txt`, require('util').inspect(err, false, null));
         }
     }
 }

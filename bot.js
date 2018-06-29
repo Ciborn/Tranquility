@@ -1,16 +1,23 @@
+const { Structures } = require('discord.js');
+
+Structures.extend('Guild', BaseGuild => {
+    return require('./core/structures/Discord/Guild')(BaseGuild);
+});
+
+Structures.extend('GuildMember', BaseGuildMember => {
+    return require('./core/structures/Discord/GuildMember')(BaseGuildMember);
+});
+
 const Bot = require('./core/structures/Bot');
-const config = require('./config.json');
 const bot = new Bot();
-bot.login(config.bot.token);
+const config = require('./config.json');
 
 bot.on('ready', () => {
-    require('rimraf')('./cache', (err) => {
-        if (err != null) console.error(err);
-    });
     require('./core/events/ready')(bot);
-    bot.cache = {};
 });
 
 bot.on('message', message => {
     require('./core/events/message')(bot, message);
 });
+
+bot.login(config.bot.token);

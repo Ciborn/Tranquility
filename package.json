@@ -24,11 +24,17 @@
   },
   "homepage": "https://github.com/Ciborn/Tranquility#readme",
   "dependencies": {
-    "discord.js": "^11.3.2",
+    "discord.js": "git://github.com/discordjs/discord.js.git#master",
     "html-convert": "^2.1.7",
+    "html-to-image": "0.0.2",
     "mysql": "^2.15.0",
+    "mysql2": "^1.5.3",
+    "nodesu": "^0.6.4",
     "numeral": "^2.0.6",
+    "pg": "^7.4.3",
+    "pg-hstore": "^2.3.2",
     "request": "^2.87.0",
-    "rimraf": "^2.6.2"
+    "rimraf": "^2.6.2",
+    "sequelize": "^4.38.0"
   }
 }

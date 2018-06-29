@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 const numeral = require('numeral');
 exports.run = function(bot, message, args) {
     var botMessages = 0, usedChannels = '', usedBots = '', usedChannelsObject = {}, usedChannelsMap = new Map(), usedBotsObject = {}, usedBotsMap = new Map();
@@ -14,17 +14,17 @@ exports.run = function(bot, message, args) {
     usedBotsMap[Symbol.iterator] = function* () { yield* [...this.entries()].sort((a, b) => b[1] - a[1]) };
     for (let [userBot, number] of usedBotsMap) usedBots += `<@${userBot}> : **${numeral(number).format('0,0')}** messages \`(${Math.round(10 * number * 100 / botMessages) / 10}%)\`\n`;
 
-    var embed = new Discord.RichEmbed()
-        .setAuthor(message.author.username, message.author.avatarURL)
+    var embed = new MessageEmbed()
+        .setAuthor(message.author.username, message.author.avatarURL())
         .setTitle('User Activity Statistics')
         .addField('General', `**${numeral(message.member.statistics.total).format('0,0')}** messages`, true)
         .addField('Chatting', `**${numeral(message.member.statistics.types.chat.total).format('0,0')}** messages \`(${Math.round(10 * message.member.statistics.types.chat.total * 100 / message.member.statistics.total) / 10}%)\``, true)
         .addField('Bots Usage', `**${numeral(botMessages).format('0,0')}** messages \`(${Math.round(10 * botMessages * 100 / message.member.statistics.total) / 10}%)\``, true)
         .addField('Most Active Channels', usedChannels.split('\n', 5).join('\n'), true)
         .addField('Most Used Bots', usedBots.split('\n', 5).join('\n'), true)
-        .setColor(message.member.highestRole.color)
-        .setFooter(`${message.guild.name}  •  Last Message in #${message.guild.channels.find('id', message.member.lastMessage.channel).name} on`, message.guild.iconURL)
-        .setTimestamp(new Date(message.member.lastMessage.createdTimestamp));
+        .setColor(message.member.displayColor)
+        .setFooter(`${message.guild.name}  •  Last Message in #${message.guild.channels.get(message.member.lastMessageInfos.channel).name} on`, message.guild.iconURL())
+        .setTimestamp(new Date(message.member.lastMessageInfos.createdTimestamp));
     message.channel.send({embed});
 }
 
