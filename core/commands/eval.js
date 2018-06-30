@@ -21,7 +21,7 @@ exports.run = function(bot, message, args) {
 exports.infos = {
     name: "Code Evaluation",
     perms: {
-        bot: 64,
+        bot: 128,
         guild: 1,
         discord: null
     },

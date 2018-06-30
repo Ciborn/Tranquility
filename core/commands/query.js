@@ -21,7 +21,7 @@ exports.run = function(bot, message, args) {
 exports.infos = {
     name: "Database Query",
     perms: {
-        bot: 8,
+        bot: 16,
         guild: 1,
         discord: null
     },

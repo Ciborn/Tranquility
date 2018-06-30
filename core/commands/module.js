@@ -12,7 +12,7 @@ exports.run = function(bot, message, args) {
 exports.infos = {
     name: "Module Management",
     perms: {
-        bot: 1,
+        bot: 32,
         guild: 1,
         discord: null
     },

@@ -30,7 +30,7 @@ exports.run = function(bot, message, args) {
 exports.infos = {
     name: "Bot Restart",
     perms: {
-        bot: 32,
+        bot: 64,
         guild: 1,
         discord: null
     },
