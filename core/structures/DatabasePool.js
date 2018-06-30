@@ -12,26 +12,80 @@ module.exports = class DatabasePool extends Sequelize {
             }
         });
     
-        this.GuildSettings = this.define('guildssettings', {
-            guildId: { type: Sequelize.TEXT('tiny'), primaryKey: true },
-            prefix: Sequelize.TEXT('tiny'),
-            settings: Sequelize.TEXT
+        this.guildssettings = this.define('guildssettings', {
+            guildId: { 
+                type: Sequelize.TEXT('tiny'), 
+                primaryKey: true 
+            },
+            prefix: {
+                type: Sequelize.TEXT('tiny'),
+                defaultValue: config.bot.defaultPrefix   
+            },
+            defaultPerms: {
+                type: Sequelize.MEDIUMINT(9),
+                defaultValue: config.bot.defaultGuildPerms   
+            },
+            settings: {
+                type: Sequelize.TEXT,
+                defaultValue: '{}'
+            }
         });
     
-        this.User = this.define('users', {
-            userId: { type: Sequelize.TEXT('tiny'), primaryKey: true },
+        this.users = this.define('users', {
+            userId: { 
+                type: Sequelize.TEXT('tiny'), 
+                primaryKey: true
+            },
             guildId: Sequelize.TEXT('tiny'),
-            botPerms: Sequelize.MEDIUMINT(6),
+            botPerms: {
+                type: Sequelize.MEDIUMINT(6),
+                defaultValue: config.bot.defaultBotPerms   
+            },
             guildPerms: Sequelize.MEDIUMINT(6),
-            lastMessageInfos: Sequelize.TEXT('tiny'),
-            statistics: Sequelize.TEXT('medium'),
-            xp: Sequelize.BIGINT(20),
-            ether: Sequelize.DECIMAL(20, 10),
-            token: Sequelize.BIGINT(20),
-            activityPoints: Sequelize.DECIMAL(20, 10),
-            boosts: Sequelize.TEXT,
-            inventory: Sequelize.TEXT,
-            settings: Sequelize.TEXT,
+            lastMessageInfos: {
+                type: Sequelize.TEXT('tiny'),
+                defaultValue: '{}'   
+            },
+            statistics: {
+                type: Sequelize.TEXT('medium'),
+                defaultValue: JSON.stringify({
+                    total: 0,
+                    types: {
+                        chat: { total: 0 },
+                        bots: { total: 0 },
+                        others: 0
+                    },
+                    bots: {}, times: {}
+                })   
+            },
+            xp: {
+                type: Sequelize.BIGINT(20),
+                defaultValue: 0,
+            },
+            ether: {
+                type: Sequelize.DECIMAL(20, 10),
+                defaultValue: 1000  
+            },
+            token: {
+                type: Sequelize.BIGINT(20),
+                defaultValue: 0   
+            },
+            activityPoints: {
+                type: Sequelize.DECIMAL(20, 10),
+                defaultValue: 1   
+            },
+            boosts: {
+                type: Sequelize.TEXT,
+                defaultValue: '{}'   
+            },
+            inventory: {
+                type: Sequelize.TEXT,
+                defaultValue: '{}'   
+            },
+            settings: {
+                type: Sequelize.TEXT,
+                defaultValue: '{}'   
+            },
             dailyTimestamp: Sequelize.BIGINT(20),
             updatedTimestamp: Sequelize.DATE
         });

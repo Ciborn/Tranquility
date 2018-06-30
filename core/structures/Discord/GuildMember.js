@@ -4,39 +4,30 @@ module.exports = function(BaseGuildMember) {
     return class GuildMember extends BaseGuildMember {
         constructor(client, data, guild) {
             super(client, data, guild);
-        }
-
-        fetch(guild) {
-            this.guild = guild;
-            poolQuery(`SELECT * FROM users WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(userData => {
-                if (Object.keys(userData).length == 0) {
-                    const statisticsModel = JSON.stringify({
-                        total: 0,
-                        types: {
-                            chat: { total: 0 },
-                            bots: { total: 0 },
-                            others: 0
-                        },
-                        bots: {}, times: {}
-                    });
-                    poolQuery(`INSERT INTO users (userId, guildId, guildPerms, statistics, boosts, inventory, lastMessageInfos, settings) VALUES ('${this.user.id}', '${this.guild.id}', ${this.guild.defaultPerms}, '${statisticsModel}', '{}', '{}', '{}', '{}')`).then(() => {
-                        this.fetch();
-                    });
-                } else {
-                    for (let [key, value] of Object.entries(userData[0])) this.setProperty(key, value);
-                    this.setProperty('perms', {
-                        bot: new Perms(this.botPerms, require('./../../data/perms.json')),
-                        guild: new Perms(this.guildPerms, require('./../../data/guildPerms.json'))
+            this.client.dbPool.users.findOne({ where: { userId: this.user.id, guildId: this.guild.id } }).then(userData => {
+                if (userData == null) {
+                    this.client.dbPool.users.create({
+                        userId: this.user.id,
+                        guildId: this.guild.id,
+                        guildPerms: this.guild.defaultPerms
+                    }).then((userData) => {
+                        this.build(userData.dataValues);
                     })
-                    this.setProperty('statistics', JSON.parse(userData[0].statistics));
-                    this.setProperty('lastMessageInfos', JSON.parse(userData[0].lastMessageInfos));
-                    this.setProperty('lastMessages', []);
+                } else {
+                    this.build(userData.dataValues);
                 }
             });
         }
 
-        setProperty(key, value) {
-            this[key] = value;
+        build(userData) {
+            for (let [key, value] of Object.entries(userData)) this[key] = value;
+            this.perms = {
+                bot: new Perms(this.botPerms, require('./../../data/perms.json')),
+                guild: new Perms(this.guildPerms, require('./../../data/guildPerms.json'))
+            }
+            this.statistics = JSON.parse(userData.statistics);
+            this.lastMessageInfos = JSON.parse(userData.lastMessageInfos);
+            this.lastMessages = [];
         }
     
         async updateStatistics(message) {
@@ -86,12 +77,21 @@ module.exports = function(BaseGuildMember) {
             if (this.statistics.times[dateFormat] == undefined) this.activityPoints++;
             this.statistics.times[dateFormat] = this.statistics.times[dateFormat] != undefined ? this.statistics.times[dateFormat]++ : this.statistics.times[dateFormat] = 1;
             this.statistics.total++;
-    
-            poolQuery(`UPDATE users SET statistics='${JSON.stringify(this.statistics)}', lastMessage='${JSON.stringify(this.lastMessage)}', xp=${this.xp}, ether=${this.ether}, activityPoints=${this.activityPoints} WHERE userId='${this.user.id}' AND guildId='${this.guild.id}'`).then(() => {
+            
+            this.ether = parseFloat(this.ether);
+            this.client.dbPool.users.update({
+                statistics: JSON.stringify(this.statistics),
+                lastMessageInfos: JSON.stringify(this.lastMessageInfos),
+                xp: this.xp,
+                ether: this.ether,
+                activityPoints: this.activityPoints
+            }, { where: {
+                    userId: this.user.id,
+                    guildId: this.guild.id
+                }
+            }).then(() => {
                 this.updatedTimestamp = new Date();
-            }).catch(() => {});
-            return this;
+            });
         }
-
     }
 }

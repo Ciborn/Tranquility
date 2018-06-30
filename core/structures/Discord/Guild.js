@@ -3,15 +3,11 @@ module.exports = function(BaseGuild) {
     return class Guild extends BaseGuild {
         constructor(client, data) {
             super(client, data);
-            this.client.dbPool.GuildSettings.findOne({ where: { guildId: this.id } }).then(guildData => {
+            this.client.dbPool.guildssettings.findOne({ where: { guildId: this.id } }).then(guildData => {
                 if (guildData == null) {
-                    this.client.dbPool.GuildSettings.create({
-                        guildId: this.id,
-                        prefix: config.bot.defaultPrefix,
-                        settings: '{}'
-                    }).then(async (guildData) => {
+                    this.client.dbPool.guildssettings.create().then((guildData) => {
                         this.build(guildData.dataValues);
-                    })
+                    });
                 } else {
                     this.build(guildData.dataValues);
                 }

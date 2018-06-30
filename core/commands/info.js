@@ -9,7 +9,7 @@ exports.run = function(bot, message, args) {
         .addField(`Resources`, `**Memory Usage** : ${Math.round(100 * process.memoryUsage().heapTotal/1000000) / 100} MB\n**Uptime** : ${Math.floor(bot.uptime/3600000)}h${minutesUptime.length == 2 ? '0' + minutesUptime : minutesUptime}`, true)
         .addField(`Host`, `**Raspberry Pi 3** at **Ciborn**'s home`, true)
         .addField(`Prefix in this guild`, `**${message.member.guild.prefix}**`, true)
-        .setThumbnail(message.guild.iconURL({size: 256}))
+        .setThumbnail(bot.user.avatarURL())
         .setColor(`BLUE`);
     message.channel.send({embed: embed});
 }
