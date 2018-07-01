@@ -16,17 +16,15 @@ module.exports = async function(bot, message) {
 
                     if (command.perms.bot != undefined && command.perms.guild != undefined) {
                         const execute = function() {
-                            try {
-                                if (command.enabled == null) {
-                                    require(`./../commands/${command.command}`).run(bot, message, args);
-                                } else {
-                                    const embed = new MessageEmbed()
-                                        .setTitle('Command Disabled')
-                                        .setDescription(`This command has been disabled. Reason : \n${command.enabled}`)
-                                        .setColor('ORANGE');
-                                    message.channel.send({embed});
-                                }
-                            } catch (err) {};
+                            if (command.enabled == null) {
+                                require(`./../commands/${command.command}`).run(bot, message, args);
+                            } else {
+                                const embed = new MessageEmbed()
+                                    .setTitle('Command Disabled')
+                                    .setDescription(`This command has been disabled. Reason : \n${command.enabled}`)
+                                    .setColor('ORANGE');
+                                message.channel.send({embed});
+                            }
                         }
     
                         if (message.member.perms.bot.has('ADMINISTRATOR')) {
@@ -69,12 +67,6 @@ module.exports = async function(bot, message) {
                 }
             }
         } catch(err) {
-            const embed = new MessageEmbed()
-                .setTitle('An Internal Error Occured')
-                .setDescription(`This error has been saved. You can alert the development team of **Tranquility** of it to help them to solve the issue.`)
-                .setFooter(`Message ID : ${message.id}`)
-                .setColor('RED');
-            message.channel.send({embed});
             require('fs').writeFileSync(`./cache/errors/${message.id}.txt`, require('util').inspect(err, false, null));
         }
     }
