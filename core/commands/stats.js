@@ -20,11 +20,13 @@ exports.run = function(bot, message, args) {
         .addField('General', `**${numeral(message.member.statistics.total).format('0,0')}** messages`, true)
         .addField('Chatting', `**${numeral(message.member.statistics.types.chat.total).format('0,0')}** messages \`(${Math.round(10 * message.member.statistics.types.chat.total * 100 / message.member.statistics.total) / 10}%)\``, true)
         .addField('Bots Usage', `**${numeral(botMessages).format('0,0')}** messages \`(${Math.round(10 * botMessages * 100 / message.member.statistics.total) / 10}%)\``, true)
-        .addField('Most Active Channels', usedChannels.split('\n', 5).join('\n'), true)
-        .addField('Most Used Bots', usedBots.split('\n', 5).join('\n'), true)
         .setColor(message.member.displayColor)
         .setFooter(`${message.guild.name}  •  Last Message in #${message.guild.channels.get(message.member.lastMessageInfos.channel).name} on`, message.guild.iconURL())
         .setTimestamp(new Date(message.member.lastMessageInfos.createdTimestamp));
+
+    if (usedChannels != '') embed.addField('Most Active Channels', usedChannels.split('\n', 5).join('\n'), true);
+    if (usedBots != '') embed.addField('Most Used Bots', usedBots.split('\n', 5).join('\n'), true);
+
     message.channel.send({embed});
 }
 
