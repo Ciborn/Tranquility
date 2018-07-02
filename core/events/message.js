@@ -7,12 +7,12 @@ module.exports = async function(bot, message) {
     if (!message.author.bot) {
         try {
             await message.member.updateStatistics(message);
-            if (message.content.indexOf(message.member.guild.prefix) == 0) {
-                const commandName = message.content.slice(message.member.guild.prefix.length).split(' ')[0];
+            if (message.content.indexOf(message.guild.prefix) == 0) {
+                const commandName = message.content.slice(message.guild.prefix.length).split(' ')[0];
                 const command = new Command(commandName);
 
                 if (command.name != undefined) {
-                    const args = message.content.slice(message.member.guild.prefix.length).split(' '); args.shift();
+                    const args = message.content.slice(message.guild.prefix.length).split(' '); args.shift();
 
                     if (command.perms.bot != undefined && command.perms.guild != undefined) {
                         const execute = function() {
