@@ -1,4 +1,4 @@
-const config = require('./../../../config.json');
+const Leaderboard = require('./../Tranquility/Leaderboard');
 module.exports = function(BaseGuild) {
     return class Guild extends BaseGuild {
         constructor(client, data) {
@@ -16,7 +16,10 @@ module.exports = function(BaseGuild) {
 
         build(guildData) {
             for (let [key, value] of Object.entries(guildData)) this[key] = value;
-            // this.leaderboard = await new Leaderboard(this.id).init();
+        }
+
+        get leaderboard() {
+            return new Leaderboard(this.members);
         }
     }
 }
