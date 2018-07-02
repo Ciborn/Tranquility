@@ -19,18 +19,18 @@ exports.run = function(bot, message, args) {
         return rank;
     }
 
-    const lead = message.member.guild.leaderboard;
-    const rankingInfos = [lead.xp[message.author.id].rank, Object.keys(lead.xp).length]; rankingInfos.push(determineRank(rankingInfos[0], rankingInfos[1]));
+    //const lead = message.guild.leaderboard;
+    //const rankingInfos = [lead.xp[message.author.id].rank, Object.keys(lead.xp).length]; rankingInfos.push(determineRank(rankingInfos[0], rankingInfos[1]));
     const embed = new MessageEmbed()
-        .setAuthor(message.author.username, message.author.avatarURL)
+        .setAuthor(message.author.username, message.author.avatarURL())
         .setTitle(`User Activity Profile`)
-        .addField(`Ranking`, `\`[${rankingInfos[2]}]\` **#${rankingInfos[0]}** / ${rankingInfos[1]}`, true)
+        .addField(`Ranking`, /*`\`[${rankingInfos[2]}]\` **#${rankingInfos[0]}** / ${rankingInfos[1]}`*/ `Feature Unavailable`, true)
         .addField(`Ether`, `${numeral(Math.floor(message.member.ether)).format('0,0')}`, true)
         .addField(`Tokens`, `${message.member.token} Tokens`, true)
         .addField(`Progression`, progression, true)
         .addField(`Activity Points`, `**${numeral(message.member.activityPoints).format('0,0.00')} APs**`, true)
-        .setColor(message.member.highestRole.color)
-        .setFooter(message.guild.name, message.guild.iconURL);
+        .setColor(message.member.displayColor)
+        .setFooter(message.guild.name, message.guild.iconURL());
     message.channel.send({embed});
 }
 
