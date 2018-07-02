@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const { MessageEmbed } = require('discord.js');
 exports.run = async function(bot, message, args) {
     const binds = {
         xp: ['xp', 'XP', 'Experience'],
@@ -35,7 +35,7 @@ exports.run = async function(bot, message, args) {
         leaderboard += `${rank} <@${userId}> - **${data.value}** ${binds[args[0] || 'xp'][1]}\n`;
     }
 
-    const embed = new Discord.RichEmbed()
+    const embed = new MessageEmbed()
         .setTitle(`Leaderboards - ${binds[args[0] || 'xp'][2]}`)
         .setDescription(leaderboard.split('\n', 14).join('\n'))
         .setFooter(`${message.guild.name}  •  Last Updated`, message.guild.iconURL)
@@ -51,7 +51,7 @@ exports.infos = {
         guild: 1,
         discord: null
     },
-    enabled: `Disabled because in WIP`,
+    enabled: null,
     category: "Activity",
     description: "Shows guild's leaderboard"
 }
