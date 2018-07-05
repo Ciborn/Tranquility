@@ -12,12 +12,10 @@ const Bot = require('./core/structures/Bot');
 const bot = new Bot();
 const config = require('./config.json');
 
-bot.on('ready', () => {
-    require('./core/events/ready')(bot);
-});
-
-bot.on('message', message => {
-    require('./core/events/message')(bot, message);
+require('fs').readdir('./core/events/', (err, files) => {
+    for (let fileName of files) {
+        bot.on(fileName.split('.')[0], (...args) => require(`./core/events/${fileName}`)(bot, ...args));
+    }
 });
 
 bot.login(config.bot.token);
