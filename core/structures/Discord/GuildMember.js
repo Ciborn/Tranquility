@@ -82,7 +82,7 @@ module.exports = function(BaseGuildMember) {
                 this.ether += timeDifference / 1000000 * this.activityPoints;
             }
     
-            const dateFormat = `${currentTime.getUTCFullYear()}-${currentTime.getUTCMonth()}-${currentTime.getUTCDay()} ${currentTime.getUTCHours()}:${currentTime.getUTCMinutes()}`;
+            const dateFormat = `${currentTime.getUTCFullYear()}-${currentTime.getUTCMonth()}-${currentTime.getUTCDate()} ${currentTime.getUTCHours()}:${currentTime.getUTCMinutes()}`;
             if (this.statistics.times[dateFormat] == undefined) this.activityPoints++;
             this.statistics.times[dateFormat] = this.statistics.times[dateFormat] != undefined ? this.statistics.times[dateFormat]++ : this.statistics.times[dateFormat] = 1;
             this.statistics.total++;
